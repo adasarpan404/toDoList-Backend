@@ -21,11 +21,9 @@ const UserSchema = new mongoose.Schema({
         required: [true, 'Please add a password'],
         minlength: 6,
         select: false // Don't return the password by default
-    },
-    createdAt: {
-        type: Date,
-        default: Date.now
     }
+}, {
+    timestamps: true
 });
 
 // Encrypt password using bcrypt before saving

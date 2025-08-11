@@ -85,7 +85,7 @@
 
 
 
-const Task = require('../models/taskModel');
+const TaskModel = require('../models/taskModel');
 
 // @desc    Get all tasks for the logged-in user
 // @route   GET /api/tasks
@@ -150,7 +150,7 @@ exports.getTasks = async (req, res, next) => {
         }
         // ------------------------
 
-        const tasks = await Task.find(query).sort({ dueDate: 1 }); // Sort by due date
+        const tasks = await TaskModel.find(query).sort({ dueDate: 1 }); // Sort by due date
 
         res.status(200).json({ success: true, count: tasks.length, data: tasks });
     } catch (err) {
@@ -164,7 +164,7 @@ exports.getTasks = async (req, res, next) => {
 // @route   GET /api/tasks/:id
 exports.getTask = async (req, res, next) => {
     try {
-        const task = await Task.findById(req.params.id);
+        const task = await TaskModel.findById(req.params.id);
 
         if (!task) {
             return res.status(404).json({ success: false, error: 'No task found' });
@@ -186,9 +186,9 @@ exports.getTask = async (req, res, next) => {
 exports.createTask = async (req, res, next) => {
     try {
         // Add user to req.body
-        req.body.user = req.user.id;
+            req.body.user = req.user.id;
 
-        const task = await Task.create(req.body);
+        const task = await TaskModel.create(req.body);
         res.status(201).json({ success: true, data: task });
     } catch (err) {
         res.status(400).json({ success: false, error: err.message });
@@ -199,7 +199,7 @@ exports.createTask = async (req, res, next) => {
 // @route   PUT /api/tasks/:id
 exports.updateTask = async (req, res, next) => {
     try {
-        let task = await Task.findById(req.params.id);
+        let task = await TaskModel.findById(req.params.id);
 
         if (!task) {
             return res.status(404).json({ success: false, error: 'No task found' });
@@ -250,18 +250,16 @@ exports.updateTask = async (req, res, next) => {
 
 exports.deleteTask = async (req, res, next) => {
     try {
-        const task = await Task.findById(req.params.id);
 
+        const task = await TaskModel.findOne({
+            _id: req.params.id,
+            user: req.user.id // Ensure the task belongs to the logged-in user
+        })
+        
         if (!task) {
             return res.status(404).json({ success: false, error: 'No task found' });
         }
 
-        // Make sure user is the task owner
-        if (task.user.toString() !== req.user.id) {
-            return res.status(401).json({ success: false, error: 'Not authorized to delete this task' });
-        }
-
-        // ✅ Use deleteOne instead of remove (Mongoose v7+)
         await task.deleteOne();
 
         res.status(200).json({ success: true, data: {} });

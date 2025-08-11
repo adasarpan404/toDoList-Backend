@@ -88,11 +88,9 @@ const TaskSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: 'User',
         required: true
-    },
-    createdAt: {
-        type: Date,
-        default: Date.now
     }
+}, {
+    timestamps: true // Automatically adds createdAt and updatedAt fields   
 });
 
 module.exports = mongoose.model('Task', TaskSchema);

@@ -54,6 +54,8 @@ connectDB();
 // Route files
 const tasks = require('./routes/tasks');
 const auth = require('./routes/auth'); // Import auth routes
+const { protect } = require('./middleware/auth');
+const router = require('./routes');
 
 const app = express();
 
@@ -64,9 +66,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 // Mount routers
-app.use('/api/tasks', tasks);
-app.use('/api/auth', auth); // Mount auth routes
-
+app.use('/api', router)
 const PORT = process.env.PORT || 5000;
 
 const server = app.listen(
